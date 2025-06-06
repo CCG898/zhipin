@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>智聘-AI招聘系统 - 控制台</title>
+    <!-- 添加 Chart.js 库 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #3498db;
@@ -1444,15 +1446,15 @@
                 <div class="card-header">
                     <h2 class="card-title">招聘漏斗</h2>
                     <div>
-                        <select style="padding: 0.3rem; border: 1px solid #ddd; border-radius: 4px;">
-                            <option>近7天</option>
-                            <option>近30天</option>
-                            <option>近90天</option>
+                        <select id="funnelTimeRange" style="padding: 0.3rem; border: 1px solid #ddd; border-radius: 4px;">
+                            <option value="7">近7天</option>
+                            <option value="30">近30天</option>
+                            <option value="90">近90天</option>
                         </select>
                     </div>
                 </div>
                 <div class="chart-container" style="height: 400px;">
-                    [招聘漏斗图]
+                    <canvas id="funnelChart"></canvas>
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem;">
                     <div style="text-align: center;">
@@ -1486,22 +1488,22 @@
                 <div class="card-header">
                     <h2 class="card-title">效率分析</h2>
                     <div>
-                        <select style="padding: 0.3rem; border: 1px solid #ddd; border-radius: 4px;">
-                            <option>按岗位</option>
-                            <option>按HR</option>
-                            <option>按时间</option>
+                        <select id="efficiencyType" style="padding: 0.3rem; border: 1px solid #ddd; border-radius: 4px;">
+                            <option value="position">按岗位</option>
+                            <option value="hr">按HR</option>
+                            <option value="time">按时间</option>
                         </select>
                     </div>
                 </div>
                 <div class="two-columns">
                     <div>
                         <div class="chart-container">
-                            [平均处理时间图]
+                            <canvas id="processingTimeChart"></canvas>
                         </div>
                     </div>
                     <div>
                         <div class="chart-container">
-                            [各环节转化率图]
+                            <canvas id="conversionRateChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -1511,22 +1513,22 @@
                 <div class="card-header">
                     <h2 class="card-title">AI效能报告</h2>
                     <div>
-                        <select style="padding: 0.3rem; border: 1px solid #ddd; border-radius: 4px;">
-                            <option>近7天</option>
-                            <option>近30天</option>
-                            <option>全部</option>
+                        <select id="aiReportTimeRange" style="padding: 0.3rem; border: 1px solid #ddd; border-radius: 4px;">
+                            <option value="7">近7天</option>
+                            <option value="30">近30天</option>
+                            <option value="all">全部</option>
                         </select>
                     </div>
                 </div>
                 <div class="two-columns">
                     <div>
                         <div class="chart-container">
-                            [筛选准确率趋势]
+                            <canvas id="aiAccuracyChart"></canvas>
                         </div>
                     </div>
                     <div>
                         <div class="chart-container">
-                            [面试评估一致性]
+                            <canvas id="aiConsistencyChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -1773,11 +1775,192 @@
 // 在页面加载时调用
 updateCurrentDate();
 
-        // 模拟数据加载
+        // 图表初始化函数
+        function initCharts() {
+            // 招聘漏斗图
+            const funnelCtx = document.getElementById('funnelChart').getContext('2d');
+            new Chart(funnelCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['简历收取', '初筛通过', '面试通过', '复试通过', '入职'],
+                    datasets: [{
+                        label: '人数',
+                        data: [128, 86, 42, 18, 5],
+                        backgroundColor: [
+                            'rgba(52, 152, 219, 0.8)',
+                            'rgba(46, 204, 113, 0.8)',
+                            'rgba(155, 89, 182, 0.8)',
+                            'rgba(241, 196, 15, 0.8)',
+                            'rgba(231, 76, 60, 0.8)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // 平均处理时间图
+            const processingTimeCtx = document.getElementById('processingTimeChart').getContext('2d');
+            new Chart(processingTimeCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Java开发', '前端开发', '产品经理', 'UI设计', '测试工程师'],
+                    datasets: [{
+                        label: '平均处理时间(小时)',
+                        data: [24, 18, 36, 20, 22],
+                        borderColor: 'rgb(52, 152, 219)',
+                        tension: 0.1,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '各岗位平均处理时间'
+                        }
+                    }
+                }
+            });
+
+            // 转化率图
+            const conversionRateCtx = document.getElementById('conversionRateChart').getContext('2d');
+            new Chart(conversionRateCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['简历筛选', '初面', '复试', 'offer', '入职'],
+                    datasets: [{
+                        label: '转化率',
+                        data: [67.2, 48.8, 42.9, 27.8, 15.6],
+                        backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                        borderColor: 'rgb(46, 204, 113)',
+                        pointBackgroundColor: 'rgb(46, 204, 113)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '各环节转化率'
+                        }
+                    },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+
+            // AI准确率趋势图
+            const aiAccuracyCtx = document.getElementById('aiAccuracyChart').getContext('2d');
+            new Chart(aiAccuracyCtx, {
+                type: 'line',
+                data: {
+                    labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                    datasets: [{
+                        label: '筛选准确率',
+                        data: [89.5, 90.2, 91.8, 92.3, 93.1, 92.8, 92.3],
+                        borderColor: 'rgb(52, 152, 219)',
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'AI筛选准确率趋势'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: 85,
+                            max: 95
+                        }
+                    }
+                }
+            });
+
+            // AI评估一致性图
+            const aiConsistencyCtx = document.getElementById('aiConsistencyChart').getContext('2d');
+            new Chart(aiConsistencyCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['技术能力', '沟通能力', '解决问题', '团队协作', '学习能力'],
+                    datasets: [{
+                        label: 'AI评估',
+                        data: [85, 82, 88, 79, 84],
+                        backgroundColor: 'rgba(52, 152, 219, 0.8)'
+                    }, {
+                        label: '人工评估',
+                        data: [83, 81, 86, 80, 82],
+                        backgroundColor: 'rgba(46, 204, 113, 0.8)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'AI与人工评估一致性对比'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // 在内容区域切换时初始化图表
         function loadContent(sectionId) {
             console.log(`加载 ${sectionId} 数据...`);
-            // 实际应用中这里可以添加AJAX请求
+            if (sectionId === 'reports') {
+                // 确保DOM元素已经加载
+                setTimeout(initCharts, 100);
+            }
         }
+
+        // 监听时间范围选择变化
+        document.getElementById('funnelTimeRange').addEventListener('change', function() {
+            // 这里可以添加更新漏斗图数据的逻辑
+            console.log('更新漏斗图数据...');
+        });
+
+        document.getElementById('efficiencyType').addEventListener('change', function() {
+            // 这里可以添加更新效率分析图表的逻辑
+            console.log('更新效率分析图表...');
+        });
+
+        document.getElementById('aiReportTimeRange').addEventListener('change', function() {
+            // 这里可以添加更新AI效能报告图表的逻辑
+            console.log('更新AI效能报告图表...');
+        });
 
         // 默认加载控制台数据
         loadContent('dashboard');
