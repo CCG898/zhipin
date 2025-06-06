@@ -1,0 +1,1591 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智聘-AI招聘系统 - 控制台</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --accent: #e74c3c;
+            --sidebar: #34495e;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: #f5f7fa;
+            overflow: hidden;
+        }
+        /* 侧边栏 */
+        .sidebar {
+            width: 250px;
+            background: var(--sidebar);
+            color: white;
+            padding: 1rem 0;
+            height: 100vh;
+            overflow-y: auto;
+            position: fixed;
+        }
+        .logo {
+            text-align: center;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 1rem;
+        }
+        .logo h2 {
+            font-size: 1.2rem;
+        }
+        .nav-menu {
+            padding: 0 1rem;
+        }
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+        .nav-item a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        .nav-item a:hover, .nav-item a.active {
+            background: rgba(255,255,255,0.1);
+        }
+        .nav-item i {
+            margin-right: 0.5rem;
+            width: 20px;
+            text-align: center;
+        }
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 2rem;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        /* 卡片样式 */
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        .card-title {
+            font-size: 1.2rem;
+            color: var(--dark);
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .btn-secondary {
+            background: var(--secondary);
+        }
+        .btn-sm {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
+        }
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 500;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .badge-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        .page-item {
+            margin: 0 0.2rem;
+        }
+        .page-link {
+            display: block;
+            padding: 0.5rem 0.8rem;
+            border: 1px solid #ddd;
+            text-decoration: none;
+            color: var(--dark);
+            border-radius: 4px;
+        }
+        .page-link.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        /* 表单元素 */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        select.form-control {
+            height: 40px;
+        }
+        /* 内容区切换效果 */
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* 双栏布局 */
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        /* 图表容器 */
+        .chart-container {
+            height: 300px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边导航 -->
+    <div class="sidebar">
+        <div class="logo">
+            <h2>智聘-AI招聘系统</h2>
+        </div>
+        <div class="nav-menu">
+            <div class="nav-item">
+                <a href="#" class="active" data-target="dashboard"><i>📊</i> 控制台</a>
+            </div>
+            <div class="nav-item">
+                <a href="#" data-target="resumes"><i>📄</i> 简历管理</a>
+            </div>
+            <div class="nav-item">
+                <a href="#" data-target="jobs"><i>💼</i> 岗位管理</a>
+            </div>
+            <div class="nav-item">
+                <a href="#" data-target="ai-screening"><i>🤖</i> AI智能筛选</a>
+            </div>
+            <div class="nav-item">
+                <a href="#" data-target="ai-interview"><i>🎤</i> AI智能面试</a>
+            </div>
+            <div class="nav-item">
+                <a href="#" data-target="candidates"><i>👥</i> 候选人跟进</a>
+            </div>
+            <div class="nav-item">
+                <a href="#" data-target="talent-pool"><i>🗄️</i> 人才库</a>
+            </div>
+            <div class="nav-item">
+                <a href="#" data-target="reports"><i>📈</i> 数据分析</a>
+            </div>
+            <div class="nav-item">
+                <a href="#" data-target="settings"><i>⚙️</i> 系统设置</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 控制台 -->
+        <div id="dashboard" class="content-section active">
+            <div class="header">
+                <h1>控制台</h1>
+                <div class="user-info">
+                    <span>管理员</span>
+                    <img src="https://via.placeholder.com/40" alt="用户头像">
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">今日数据概览</h2>
+                    <span id="current-date"></span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div class="stat-card">
+                        <h3>新简历</h3>
+                        <p style="font-size: 1.5rem; color: var(--primary);">128</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>待筛选</h3>
+                        <p style="font-size: 1.5rem; color: var(--accent);">42</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>待面试</h3>
+                        <p style="font-size: 1.5rem; color: var(--secondary);">18</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>新岗位</h3>
+                        <p style="font-size: 1.5rem; color: var(--dark);">5</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">待处理事项</h2>
+                    <a href="#" class="btn">查看全部</a>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>任务类型</th>
+                            <th>候选人</th>
+                            <th>岗位</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>AI面试通过</td>
+                            <td>张三</td>
+                            <td>Java高级开发</td>
+                            <td><span class="badge badge-success">待人工确认</span></td>
+                            <td><a href="#" class="btn btn-secondary btn-sm">处理</a></td>
+                        </tr>
+                        <tr>
+                            <td>简历筛选完成</td>
+                            <td>李四</td>
+                            <td>前端工程师</td>
+                            <td><span class="badge badge-warning">待安排面试</span></td>
+                            <td><a href="#" class="btn btn-secondary btn-sm">处理</a></td>
+                        </tr>
+                        <tr>
+                            <td>新岗位发布</td>
+                            <td>-</td>
+                            <td>UI设计师</td>
+                            <td><span class="badge badge-success">待匹配人才</span></td>
+                            <td><a href="#" class="btn btn-secondary btn-sm">处理</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">系统活动记录</h2>
+                </div>
+                <div style="max-height: 300px; overflow-y: auto;">
+                    <div style="padding: 0.8rem; border-bottom: 1px solid #eee;">
+                        <p><strong>AI系统</strong> 完成了对<strong>王五</strong>的智能面试，评分: 87/100</p>
+                        <small style="color: #888;">10分钟前</small>
+                    </div>
+                    <div style="padding: 0.8rem; border-bottom: 1px solid #eee;">
+                        <p><strong>管理员</strong> 发布了新岗位: <strong>Python数据分析师</strong></p>
+                        <small style="color: #888;">25分钟前</small>
+                    </div>
+                    <div style="padding: 0.8rem; border-bottom: 1px solid #eee;">
+                        <p><strong>AI系统</strong> 从人才库中匹配到<strong>3位</strong>适合<strong>产品经理</strong>岗位的候选人</p>
+                        <small style="color: #888;">1小时前</small>
+                    </div>
+                    <div style="padding: 0.8rem; border-bottom: 1px solid #eee;">
+                        <p><strong>系统</strong> 自动导入了<strong>28份</strong>新简历</p>
+                        <small style="color: #888;">2小时前</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 简历管理 -->
+        <div id="resumes" class="content-section">
+            <div class="header">
+                <h1>简历管理</h1>
+                <div class="user-info">
+                    <span>管理员</span>
+                    <img src="https://via.placeholder.com/40" alt="用户头像">
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">简历列表</h2>
+                    <div>
+                        <a href="#" class="btn">批量导入</a>
+                        <a href="#" class="btn btn-secondary">AI解析设置</a>
+                    </div>
+                </div>
+                <div style="margin-bottom: 1rem; display: flex; gap: 1rem;">
+                    <input type="text" placeholder="搜索姓名/职位..." style="padding: 0.5rem; flex: 1; border: 1px solid #ddd; border-radius: 4px;">
+                    <select style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                        <option>全部状态</option>
+                        <option>待解析</option>
+                        <option>已解析</option>
+                        <option>待筛选</option>
+                    </select>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>姓名</th>
+                            <th>联系方式</th>
+                            <th>最近职位</th>
+                            <th>工作年限</th>
+                            <th>上传时间</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>张三</td>
+                            <td>138****1234</td>
+                            <td>Java高级开发</td>
+                            <td>5年</td>
+                            <td>2023-11-15 09:23</td>
+                            <td><span class="badge badge-success">已解析</span></td>
+                            <td>
+                                <a href="#" style="color: var(--primary); margin-right: 0.5rem;">查看</a>
+                                <a href="#" style="color: var(--accent);">删除</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>李四</td>
+                            <td>159****5678</td>
+                            <td>前端工程师</td>
+                            <td>3年</td>
+                            <td>2023-11-15 10:45</td>
+                            <td><span class="badge badge-warning">待筛选</span></td>
+                            <td>
+                                <a href="#" style="color: var(--primary); margin-right: 0.5rem;">查看</a>
+                                <a href="#" style="color: var(--accent);">删除</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>王五</td>
+                            <td>186****8910</td>
+                            <td>产品经理</td>
+                            <td>4年</td>
+                            <td>2023-11-14 16:12</td>
+                            <td><span class="badge badge-success">已解析</span></td>
+                            <td>
+                                <a href="#" style="color: var(--primary); margin-right: 0.5rem;">查看</a>
+                                <a href="#" style="color: var(--accent);">删除</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>赵六</td>
+                            <td>135****3456</td>
+                            <td>UI设计师</td>
+                            <td>2年</td>
+                            <td>2023-11-14 14:30</td>
+                            <td><span class="badge badge-success">已解析</span></td>
+                            <td>
+                                <a href="#" style="color: var(--primary); margin-right: 0.5rem;">查看</a>
+                                <a href="#" style="color: var(--accent);">删除</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <a href="#" class="page-link">«</a>
+                    <a href="#" class="page-link active">1</a>
+                    <a href="#" class="page-link">2</a>
+                    <a href="#" class="page-link">3</a>
+                    <a href="#" class="page-link">»</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">简历解析统计</h2>
+                </div>
+                <div class="two-columns">
+                    <div>
+                        <div class="chart-container">
+                            [简历格式分布饼图]
+                        </div>
+                        <p style="text-align: center;">简历格式分布</p>
+                    </div>
+                    <div>
+                        <div class="chart-container">
+                            [解析成功率柱状图]
+                        </div>
+                        <p style="text-align: center;">近7天解析成功率</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 岗位管理 -->
+        <div id="jobs" class="content-section">
+            <div class="header">
+                <h1>岗位管理</h1>
+                <div class="user-info">
+                    <span>管理员</span>
+                    <img src="https://via.placeholder.com/40" alt="用户头像">
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">岗位列表</h2>
+                    <a href="#" class="btn">新建岗位</a>
+                </div>
+                <div style="margin-bottom: 1rem; display: flex; gap: 1rem;">
+                    <input type="text" placeholder="搜索岗位名称..." style="padding: 0.5rem; flex: 1; border: 1px solid #ddd; border-radius: 4px;">
+                    <select style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                        <option>全部状态</option>
+                        <option>招聘中</option>
+                        <option>已暂停</option>
+                        <option>已关闭</option>
+                    </select>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>岗位名称</th>
+                            <th>所属企业</th>
+                            <th>薪资范围</th>
+                            <th>紧急程度</th>
+                            <th>候选人</th>
+                            <th>发布时间</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Java高级开发</td>
+                            <td>XX科技有限公司</td>
+                            <td>20-30K</td>
+                            <td><span class="badge badge-danger">紧急</span></td>
+                            <td>12/3</td>
+                            <td>2023-11-10</td>
+                            <td><span class="badge badge-success">招聘中</span></td>
+                            <td>
+                                <a href="#" style="color: var(--primary); margin-right: 0.5rem;">编辑</a>
+                                <a href="#" style="color: var(--primary); margin-right: 0.5rem;">匹配</a>
+                                <a href="#" style="color: var(--accent);">关闭</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>前端工程师</td>
+                            <td>YY网络公司</td>
+                            <td>15-25K</td>
+                            <td><span class="badge badge-warning">一般</span></td>
+                            <td>8/2</td>
+                            <td>2023-11-12</td>
+                            <td><span class="badge badge-success">招聘中</span></td>
+                            <td>
+                                <a href="#" style="color: var(--primary); margin-right: 0.5rem;">编辑</a>
+                                <a href="#" style="color: var(--primary); margin-right: 0.5rem;">匹配</a>
+                                <a href="#" style="color: var(--accent);">关闭</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>产品经理</td>
+                            <td>ZZ互联网公司</td>
+                            <td>18-28K</td>
+                            <td><span class="badge badge-info">低</span></td>
+                            <td>5/1</td>
+                            <td>2023-11-08</td>
+                            <td><span class="badge badge-success">招聘中</span></td>
+                            <td>
+                                <a href="#" style="color: var(--primary); margin-right: 0.5rem;">编辑</a>
+                                <a href="#" style="color: var(--primary); margin-right: 0.5rem;">匹配</a>
+                                <a href="#" style="color: var(--accent);">关闭</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>UI设计师</td>
+                            <td>AA设计工作室</td>
+                            <td>12-20K</td>
+                            <td><span class="badge badge-danger">紧急</span></td>
+                            <td>3/0</td>
+                            <td>2023-11-14</td>
+                            <td><span class="badge badge-success">招聘中</span></td>
+                            <td>
+                                <a href="#" style="color: var(--primary); margin-right: 0.5rem;">编辑</a>
+                                <a href="#" style="color: var(--primary); margin-right: 0.5rem;">匹配</a>
+                                <a href="#" style="color: var(--accent);">关闭</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <a href="#" class="page-link">«</a>
+                    <a href="#" class="page-link active">1</a>
+                    <a href="#" class="page-link">2</a>
+                    <a href="#" class="page-link">3</a>
+                    <a href="#" class="page-link">»</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">岗位需求分析</h2>
+                </div>
+                <div class="two-columns">
+                    <div>
+                        <div class="chart-container">
+                            [岗位类型分布图]
+                        </div>
+                    </div>
+                    <div>
+                        <div class="chart-container">
+                            [紧急岗位占比图]
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI智能筛选 -->
+        <div id="ai-screening" class="content-section">
+            <div class="header">
+                <h1>AI智能筛选</h1>
+                <div class="user-info">
+                    <span>管理员</span>
+                    <img src="https://via.placeholder.com/40" alt="用户头像">
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">智能筛选配置</h2>
+                    <a href="#" class="btn btn-secondary">筛选规则设置</a>
+                </div>
+                <div class="form-group">
+                    <label>选择岗位进行筛选</label>
+                    <select class="form-control">
+                        <option>Java高级开发</option>
+                        <option>前端工程师</option>
+                        <option>产品经理</option>
+                        <option>UI设计师</option>
+                    </select>
+                </div>
+                
+                <div style="margin-top: 1.5rem;">
+                    <h3 style="margin-bottom: 1rem;">筛选条件设置</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                        <div class="form-group">
+                            <label>工作年限</label>
+                            <select class="form-control">
+                                <option>不限</option>
+                                <option>1-3年</option>
+                                <option>3-5年</option>
+                                <option>5年以上</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>学历要求</label>
+                            <select class="form-control">
+                                <option>不限</option>
+                                <option>大专</option>
+                                <option>本科</option>
+                                <option>硕士及以上</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>薪资期望</label>
+                            <select class="form-control">
+                                <option>不限</option>
+                                <option>10K以下</option>
+                                <option>10-20K</option>
+                                <option>20K以上</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>关键技能 (多选)</label>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+                            <label style="display: flex; align-items: center;">
+                                <input type="checkbox" style="margin-right: 0.3rem;"> Java
+                            </label>
+                            <label style="display: flex; align-items: center;">
+                                <input type="checkbox" style="margin-right: 0.3rem;"> Spring
+                            </label>
+                            <label style="display: flex; align-items: center;">
+                                <input type="checkbox" style="margin-right: 0.3rem;"> MySQL
+                            </label>
+                            <label style="display: flex; align-items: center;">
+                                <input type="checkbox" style="margin-right: 0.3rem;"> Redis
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 1.5rem; text-align: center;">
+                        <button class="btn" style="padding: 0.8rem 2rem;">开始筛选</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">筛选结果</h2>
+                    <div>
+                        <span style="margin-right: 1rem;">匹配到 <strong>23</strong> 位候选人</span>
+                        <a href="#" class="btn btn-secondary">导出结果</a>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>姓名</th>
+                            <th>匹配度</th>
+                            <th>最近职位</th>
+                            <th>工作年限</th>
+                            <th>薪资期望</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>张三</td>
+                            <td>
+                                <div style="background: #f0f0f0; height: 10px; border-radius: 5px;">
+                                    <div style="background: var(--secondary); width: 92%; height: 100%; border-radius: 5px;"></div>
+                                </div>
+                                <small>92%</small>
+                            </td>
+                            <td>Java高级开发</td>
+                            <td>5年</td>
+                            <td>25K</td>
+                            <td>
+                                <a href="#" class="btn btn-secondary btn-sm">安排面试</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>李四</td>
+                            <td>
+                                <div style="background: #f0f0f0; height: 10px; border-radius: 5px;">
+                                    <div style="background: var(--secondary); width: 85%; height: 100%; border-radius: 5px;"></div>
+                                </div>
+                                <small>85%</small>
+                            </td>
+                            <td>Java开发工程师</td>
+                            <td>4年</td>
+                            <td>22K</td>
+                            <td>
+                                <a href="#" class="btn btn-secondary btn-sm">安排面试</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>王五</td>
+                            <td>
+                                <div style="background: #f0f0f0; height: 10px; border-radius: 5px;">
+                                    <div style="background: var(--secondary); width: 78%; height: 100%; border-radius: 5px;"></div>
+                                </div>
+                                <small>78%</small>
+                            </td>
+                            <td>Java中级开发</td>
+                            <td>3年</td>
+                            <td>18K</td>
+                            <td>
+                                <a href="#" class="btn btn-secondary btn-sm">安排面试</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <a href="#" class="page-link">«</a>
+                    <a href="#" class="page-link active">1</a>
+                    <a href="#" class="page-link">2</a>
+                    <a href="#" class="page-link">3</a>
+                    <a href="#" class="page-link">»</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI智能面试 -->
+        <div id="ai-interview" class="content-section">
+            <div class="header">
+                <h1>AI智能面试</h1>
+                <div class="user-info">
+                    <span>管理员</span>
+                    <img src="https://via.placeholder.com/40" alt="用户头像">
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">面试配置</h2>
+                    <div>
+                        <a href="#" class="btn">面试题库</a>
+                        <a href="#" class="btn btn-secondary">评估标准</a>
+                    </div>
+                </div>
+                
+                <div class="two-columns" style="margin-top: 1rem;">
+                    <div>
+                        <div class="form-group">
+                            <label>选择面试模板</label>
+                            <select class="form-control">
+                                <option>技术岗通用面试</option>
+                                <option>管理岗通用面试</option>
+                                <option>Java开发专项面试</option>
+                                <option>产品经理专项面试</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>面试时长</label>
+                            <select class="form-control">
+                                <option>15分钟</option>
+                                <option>30分钟</option>
+                                <option>45分钟</option>
+                                <option>60分钟</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>面试语言</label>
+                            <select class="form-control">
+                                <option>中文</option>
+                                <option>英文</option>
+                                <option>中英双语</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="form-group">
+                            <label>面试问题预览</label>
+                            <div style="border: 1px solid #eee; border-radius: 4px; padding: 0.8rem; height: 200px; overflow-y: auto;">
+                                <p>1. 请简单介绍一下您的工作经历</p>
+                                <p>2. 您在Java开发中遇到的最大挑战是什么？如何解决的？</p>
+                                <p>3. 请描述您对Spring框架的理解和使用经验</p>
+                                <p>4. 如何处理高并发场景下的性能问题？</p>
+                                <p>5. 您如何保证代码质量和可维护性？</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 1.5rem; text-align: center;">
+                    <button class="btn" style="padding: 0.8rem 2rem;">保存配置</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">面试安排</h2>
+                    <a href="#" class="btn">批量安排</a>
+                </div>
+                
+                <div class="two-columns" style="margin-top: 1rem;">
+                    <div>
+                        <h3 style="margin-bottom: 1rem;">待面试列表</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>姓名</th>
+                                    <th>岗位</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>张三</td>
+                                    <td>Java高级开发</td>
+                                    <td>
+                                        <a href="#" class="btn btn-secondary btn-sm">安排面试</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>李四</td>
+                                    <td>前端工程师</td>
+                                    <td>
+                                        <a href="#" class="btn btn-secondary btn-sm">安排面试</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>王五</td>
+                                    <td>产品经理</td>
+                                    <td>
+                                        <a href="#" class="btn btn-secondary btn-sm">安排面试</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div>
+                        <h3 style="margin-bottom: 1rem;">面试中</h3>
+                        <div style="text-align: center; padding: 2rem; border: 1px dashed #ddd; border-radius: 8px;">
+                            <div style="width: 100%; height: 180px; background: #f5f5f5; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                                [视频面试画面]
+                            </div>
+                            <p>正在面试: <strong>赵六</strong></p>
+                            <p>岗位: UI设计师</p>
+                            <p>剩余问题: 3/10</p>
+                            <div style="margin-top: 1rem; display: flex; justify-content: center; gap: 1rem;">
+                                <a href="#" class="btn btn-sm">进入监考</a>
+                                <a href="#" class="btn btn-secondary btn-sm">终止面试</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">面试记录</h2>
+                    <div>
+                        <select style="padding: 0.3rem; border: 1px solid #ddd; border-radius: 4px;">
+                            <option>全部状态</option>
+                            <option>已完成</option>
+                            <option>进行中</option>
+                            <option>已取消</option>
+                        </select>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>候选人</th>
+                            <th>岗位</th>
+                            <th>面试时间</th>
+                            <th>评分</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>钱七</td>
+                            <td>Java中级开发</td>
+                            <td>2023-11-14 14:30</td>
+                            <td>84/100</td>
+                            <td><span class="badge badge-success">已完成</span></td>
+                            <td>
+                                <a href="#" style="color: var(--primary);">查看报告</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>孙八</td>
+                            <td>前端工程师</td>
+                            <td>2023-11-13 10:15</td>
+                            <td>76/100</td>
+                            <td><span class="badge badge-success">已完成</span></td>
+                            <td>
+                                <a href="#" style="color: var(--primary);">查看报告</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>周九</td>
+                            <td>产品经理</td>
+                            <td>2023-11-12 16:45</td>
+                            <td>89/100</td>
+                            <td><span class="badge badge-success">已完成</span></td>
+                            <td>
+                                <a href="#" style="color: var(--primary);">查看报告</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <a href="#" class="page-link">«</a>
+                    <a href="#" class="page-link active">1</a>
+                    <a href="#" class="page-link">2</a>
+                    <a href="#" class="page-link">3</a>
+                    <a href="#" class="page-link">»</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 候选人跟进 -->
+        <div id="candidates" class="content-section">
+            <div class="header">
+                <h1>候选人跟进</h1>
+                <div class="user-info">
+                    <span>管理员</span>
+                    <img src="https://via.placeholder.com/40" alt="用户头像">
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">跟进列表</h2>
+                    <div>
+                        <select style="padding: 0.3rem; border: 1px solid #ddd; border-radius: 4px; margin-right: 1rem;">
+                            <option>全部状态</option>
+                            <option>初面通过</option>
+                            <option>复试安排中</option>
+                            <option>已发offer</option>
+                            <option>已入职</option>
+                        </select>
+                        <a href="#" class="btn">新建跟进</a>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>姓名</th>
+                            <th>岗位</th>
+                            <th>当前阶段</th>
+                            <th>最近联系</th>
+                            <th>下次跟进</th>
+                            <th>负责人</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>张三</td>
+                            <td>Java高级开发</td>
+                            <td><span class="badge badge-success">初面通过</span></td>
+                            <td>2023-11-15</td>
+                            <td>2023-11-17</td>
+                            <td>李主管</td>
+                            <td>
+                                <a href="#" style="color: var(--primary); margin-right: 0.5rem;">跟进</a>
+                                <a href="#" style="color: var(--accent);">放弃</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>李四</td>
+                            <td>前端工程师</td>
+                            <td><span class="badge badge-warning">复试安排中</span></td>
+                            <td>2023-11-14</td>
+                            <td>2023-11-16</td>
+                            <td>王经理</td>
+                            <td>
+                                <a href="#" style="color: var(--primary); margin-right: 0.5rem;">跟进</a>
+                                <a href="#" style="color: var(--accent);">放弃</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>王五</td>
+                            <td>产品经理</td>
+                            <td><span class="badge badge-info">已发offer</span></td>
+                            <td>2023-11-13</td>
+                            <td>2023-11-20</td>
+                            <td>张总监</td>
+                            <td>
+                                <a href="#" style="color: var(--primary); margin-right: 0.5rem;">跟进</a>
+                                <a href="#" style="color: var(--accent);">放弃</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>赵六</td>
+                            <td>UI设计师</td>
+                            <td><span class="badge badge-success">已入职</span></td>
+                            <td>2023-11-10</td>
+                            <td>-</td>
+                            <td>李主管</td>
+                            <td>
+                                <a href="#" style="color: var(--primary); margin-right: 0.5rem;">查看</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <a href="#" class="page-link">«</a>
+                    <a href="#" class="page-link active">1</a>
+                    <a href="#" class="page-link">2</a>
+                    <a href="#" class="page-link">3</a>
+                    <a href="#" class="page-link">»</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">跟进统计</h2>
+                    <div>
+                        <select style="padding: 0.3rem; border: 1px solid #ddd; border-radius: 4px;">
+                            <option>近7天</option>
+                            <option>近30天</option>
+                            <option>近90天</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="two-columns">
+                    <div>
+                        <div class="chart-container">
+                            [跟进阶段分布图]
+                        </div>
+                    </div>
+                    <div>
+                        <div class="chart-container">
+                            [转化率趋势图]
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 人才库 -->
+        <div id="talent-pool" class="content-section">
+            <div class="header">
+                <h1>人才库</h1>
+                <div class="user-info">
+                    <span>管理员</span>
+                    <img src="https://via.placeholder.com/40" alt="用户头像">
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">人才检索</h2>
+                    <div>
+                        <a href="#" class="btn">标签管理</a>
+                        <a href="#" class="btn btn-secondary">自动匹配设置</a>
+                    </div>
+                </div>
+                <div style="margin-bottom: 1rem; display: flex; gap: 1rem;">
+                    <input type="text" placeholder="搜索姓名/技能..." style="padding: 0.5rem; flex: 1; border: 1px solid #ddd; border-radius: 4px;">
+                    <select style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                        <option>全部标签</option>
+                        <option>Java</option>
+                        <option>前端</option>
+                        <option>产品</option>
+                        <option>设计</option>
+                    </select>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>姓名</th>
+                            <th>上次岗位</th>
+                            <th>关键技能</th>
+                            <th>不通过原因</th>
+                            <th>入库时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>钱七</td>
+                            <td>Java中级开发</td>
+                            <td>
+                                <span class="badge">Java</span>
+                                <span class="badge">Spring</span>
+                                <span class="badge">MySQL</span>
+                            </td>
+                            <td>薪资要求过高</td>
+                            <td>2023-10-20</td>
+                            <td>
+                                <a href="#" class="btn btn-secondary btn-sm">激活</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>孙八</td>
+                            <td>前端工程师</td>
+                            <td>
+                                <span class="badge">HTML5</span>
+                                <span class="badge">CSS3</span>
+                                <span class="badge">Vue.js</span>
+                            </td>
+                            <td>经验不足</td>
+                            <td>2023-11-05</td>
+                            <td>
+                                <a href="#" class="btn btn-secondary btn-sm">激活</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>周九</td>
+                            <td>产品经理</td>
+                            <td>
+                                <span class="badge">Axure</span>
+                                <span class="badge">PRD</span>
+                                <span class="badge">用户调研</span>
+                            </td>
+                            <td>岗位已招满</td>
+                            <td>2023-09-15</td>
+                            <td>
+                                <a href="#" class="btn btn-secondary btn-sm">激活</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>吴十</td>
+                            <td>UI设计师</td>
+                            <td>
+                                <span class="badge">PS</span>
+                                <span class="badge">AI</span>
+                                <span class="badge">Sketch</span>
+                            </td>
+                            <td>风格不匹配</td>
+                            <td>2023-10-10</td>
+                            <td>
+                                <a href="#" class="btn btn-secondary btn-sm">激活</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <a href="#" class="page-link">«</a>
+                    <a href="#" class="page-link active">1</a>
+                    <a href="#" class="page-link">2</a>
+                    <a href="#" class="page-link">3</a>
+                    <a href="#" class="page-link">»</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">自动匹配记录</h2>
+                    <div>
+                        <select style="padding: 0.3rem; border: 1px solid #ddd; border-radius: 4px;">
+                            <option>近7天</option>
+                            <option>近30天</option>
+                            <option>全部</option>
+                        </select>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>匹配时间</th>
+                            <th>岗位名称</th>
+                            <th>匹配人才</th>
+                            <th>最高匹配度</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2023-11-15 09:23</td>
+                            <td>Java高级开发</td>
+                            <td>3人</td>
+                            <td>92%</td>
+                            <td>
+                                <a href="#" style="color: var(--primary);">查看详情</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2023-11-14 14:12</td>
+                            <td>前端工程师</td>
+                            <td>2人</td>
+                            <td>85%</td>
+                            <td>
+                                <a href="#" style="color: var(--primary);">查看详情</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2023-11-13 11:05</td>
+                            <td>产品经理</td>
+                            <td>1人</td>
+                            <td>78%</td>
+                            <td>
+                                <a href="#" style="color: var(--primary);">查看详情</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 数据分析 -->
+        <div id="reports" class="content-section">
+            <div class="header">
+                <h1>数据分析</h1>
+                <div class="user-info">
+                    <span>管理员</span>
+                    <img src="https://via.placeholder.com/40" alt="用户头像">
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">招聘漏斗</h2>
+                    <div>
+                        <select style="padding: 0.3rem; border: 1px solid #ddd; border-radius: 4px;">
+                            <option>近7天</option>
+                            <option>近30天</option>
+                            <option>近90天</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chart-container" style="height: 400px;">
+                    [招聘漏斗图]
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                    <div style="text-align: center;">
+                        <h3>简历收取</h3>
+                        <p style="font-size: 1.2rem;">128</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <h3>初筛通过</h3>
+                        <p style="font-size: 1.2rem;">86</p>
+                        <small style="color: var(--secondary);">67.2%</small>
+                    </div>
+                    <div style="text-align: center;">
+                        <h3>面试通过</h3>
+                        <p style="font-size: 1.2rem;">42</p>
+                        <small style="color: var(--secondary);">48.8%</small>
+                    </div>
+                    <div style="text-align: center;">
+                        <h3>复试通过</h3>
+                        <p style="font-size: 1.2rem;">18</p>
+                        <small style="color: var(--secondary);">42.9%</small>
+                    </div>
+                    <div style="text-align: center;">
+                        <h3>入职</h3>
+                        <p style="font-size: 1.2rem;">5</p>
+                        <small style="color: var(--secondary);">27.8%</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">效率分析</h2>
+                    <div>
+                        <select style="padding: 0.3rem; border: 1px solid #ddd; border-radius: 4px;">
+                            <option>按岗位</option>
+                            <option>按HR</option>
+                            <option>按时间</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="two-columns">
+                    <div>
+                        <div class="chart-container">
+                            [平均处理时间图]
+                        </div>
+                    </div>
+                    <div>
+                        <div class="chart-container">
+                            [各环节转化率图]
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">AI效能报告</h2>
+                    <div>
+                        <select style="padding: 0.3rem; border: 1px solid #ddd; border-radius: 4px;">
+                            <option>近7天</option>
+                            <option>近30天</option>
+                            <option>全部</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="two-columns">
+                    <div>
+                        <div class="chart-container">
+                            [筛选准确率趋势]
+                        </div>
+                    </div>
+                    <div>
+                        <div class="chart-container">
+                            [面试评估一致性]
+                        </div>
+                    </div>
+                </div>
+                <table style="margin-top: 1rem;">
+                    <thead>
+                        <tr>
+                            <th>指标</th>
+                            <th>本周</th>
+                            <th>上周</th>
+                            <th>变化</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>简历筛选准确率</td>
+                            <td>92.3%</td>
+                            <td>89.7%</td>
+                            <td><span style="color: var(--secondary);">↑2.6%</span></td>
+                        </tr>
+                        <tr>
+                            <td>面试评估一致性</td>
+                            <td>85.1%</td>
+                            <td>82.4%</td>
+                            <td><span style="color: var(--secondary);">↑2.7%</span></td>
+                        </tr>
+                        <tr>
+                            <td>人才匹配效率</td>
+                            <td>78.5%</td>
+                            <td>75.2%</td>
+                            <td><span style="color: var(--secondary);">↑3.3%</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 系统设置 -->
+        <div id="settings" class="content-section">
+            <div class="header">
+                <h1>系统设置</h1>
+                <div class="user-info">
+                    <span>管理员</span>
+                    <img src="https://via.placeholder.com/40" alt="用户头像">
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">账号管理</h2>
+                    <a href="#" class="btn">新建账号</a>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>用户名</th>
+                            <th>角色</th>
+                            <th>最后登录</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>admin</td>
+                            <td>超级管理员</td>
+                            <td>2023-11-15 09:12</td>
+                            <td><span class="badge badge-success">正常</span></td>
+                            <td>
+                                <a href="#" style="color: var(--primary); margin-right: 0.5rem;">编辑</a>
+                                <a href="#" style="color: var(--accent);">禁用</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>hr1</td>
+                            <td>HR专员</td>
+                            <td>2023-11-14 16:45</td>
+                            <td><span class="badge badge-success">正常</span></td>
+                            <td>
+                                <a href="#" style="color: var(--primary); margin-right: 0.5rem;">编辑</a>
+                                <a href="#" style="color: var(--accent);">禁用</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>hr2</td>
+                            <td>HR专员</td>
+                            <td>2023-11-13 10:23</td>
+                            <td><span class="badge badge-warning">未激活</span></td>
+                            <td>
+                                <a href="#" style="color: var(--primary); margin-right: 0.5rem;">编辑</a>
+                                <a href="#" style="color: var(--secondary);">激活</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">系统集成</h2>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                    <div>
+                        <h3 style="margin-bottom: 1rem;">企业微信</h3>
+                        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px;">
+                            <p style="margin-bottom: 0.5rem;">状态: <span style="color: var(--secondary);">已连接</span></p>
+                            <p style="margin-bottom: 1rem;">最后同步: 2023-11-15 08:30</p>
+                            <button class="btn btn-secondary">重新授权</button>
+                            <button class="btn" style="margin-left: 0.5rem;">设置</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 style="margin-bottom: 1rem;">邮箱服务器</h3>
+                        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px;">
+                            <p style="margin-bottom: 0.5rem;">状态: <span style="color: var(--accent);">未配置</span></p>
+                            <button class="btn">配置SMTP</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 style="margin-bottom: 1rem;">招聘平台API</h3>
+                        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px;">
+                            <p style="margin-bottom: 0.5rem;">状态: <span style="color: var(--secondary);">已连接</span></p>
+                            <p style="margin-bottom: 1rem;">已接入: 智联招聘、BOSS直聘</p>
+                            <button class="btn">管理接入</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">数据备份</h2>
+                    <a href="#" class="btn">立即备份</a>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>备份时间</th>
+                            <th>文件大小</th>
+                            <th>类型</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2023-11-14 23:00</td>
+                            <td>256 MB</td>
+                            <td>自动备份</td>
+                            <td>
+                                <a href="#" style="color: var(--primary); margin-right: 0.5rem;">下载</a>
+                                <a href="#" style="color: var(--accent);">删除</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2023-11-07 23:00</td>
+                            <td>248 MB</td>
+                            <td>自动备份</td>
+                            <td>
+                                <a href="#" style="color: var(--primary); margin-right: 0.5rem;">下载</a>
+                                <a href="#" style="color: var(--accent);">删除</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2023-10-31 23:00</td>
+                            <td>240 MB</td>
+                            <td>自动备份</td>
+                            <td>
+                                <a href="#" style="color: var(--primary); margin-right: 0.5rem;">下载</a>
+                                <a href="#" style="color: var(--accent);">删除</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 切换内容区域
+        document.querySelectorAll('.nav-item a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // 移除所有active类
+                document.querySelectorAll('.nav-item a').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                // 添加active类
+                this.classList.add('active');
+                const targetId = this.getAttribute('data-target');
+                document.getElementById(targetId).classList.add('active');
+                
+                // 模拟加载数据
+                loadContent(targetId);
+            });
+        });
+	// 显示当前日期
+         function updateCurrentDate() {
+   	 const now = new Date();
+    	const formattedDate = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
+    	document.getElementById('current-date').textContent = formattedDate;
+          }
+
+// 在页面加载时调用
+updateCurrentDate();
+
+        // 模拟数据加载
+        function loadContent(sectionId) {
+            console.log(`加载 ${sectionId} 数据...`);
+            // 实际应用中这里可以添加AJAX请求
+        }
+
+        // 默认加载控制台数据
+        loadContent('dashboard');
+    </script>
+</body>
+</html>
