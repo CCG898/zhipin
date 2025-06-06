@@ -239,19 +239,177 @@
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
-                height: auto;
-                position: relative;
+                height: 100vh;
+                position: fixed;
+                top: 0;
+                left: -100%;
+                z-index: 1000;
+                transition: left 0.3s ease;
+                background: var(--sidebar);
             }
+            
+            .sidebar.active {
+                left: 0;
+            }
+            
             .main-content {
                 margin-left: 0;
+                padding: 1rem;
+                margin-top: 60px;
+                width: 100%;
             }
+            
+            .header {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                padding: 1rem;
+                z-index: 999;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                margin-bottom: 0;
+            }
+            
+            .menu-toggle {
+                display: block;
+                position: fixed;
+                top: 1rem;
+                left: 1rem;
+                z-index: 1001;
+                background: var(--primary);
+                color: white;
+                border: none;
+                padding: 0.5rem;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 1.2rem;
+            }
+            
             .two-columns {
                 grid-template-columns: 1fr;
+                gap: 1rem;
             }
+            
+            /* 表格响应式处理 */
+            .card {
+                overflow-x: auto;
+            }
+            
+            table {
+                min-width: 600px;
+            }
+            
+            /* 卡片内容调整 */
+            .card {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: flex-start;
+            }
+            
+            .card-header .btn {
+                width: 100%;
+                text-align: center;
+                margin-top: 0.5rem;
+            }
+            
+            /* 统计卡片调整 */
+            .stat-card {
+                padding: 1rem;
+                text-align: center;
+                background: #f8f9fa;
+                border-radius: 8px;
+                margin-bottom: 0.5rem;
+            }
+            
+            /* 表单元素调整 */
+            .form-control {
+                font-size: 16px;
+                padding: 0.8rem;
+            }
+            
+            /* 按钮调整 */
+            .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+                padding: 0.8rem;
+            }
+            
+            /* 分页调整 */
+            .pagination {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                justify-content: center;
+            }
+            
+            .page-link {
+                padding: 0.6rem 0.8rem;
+                min-width: 40px;
+                text-align: center;
+            }
+            
+            /* 图表容器调整 */
+            .chart-container {
+                height: 250px;
+                margin-bottom: 1rem;
+            }
+            
+            /* 搜索栏调整 */
+            .search-bar {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .search-bar input,
+            .search-bar select {
+                width: 100%;
+                padding: 0.8rem;
+            }
+            
+            /* 用户信息调整 */
+            .user-info {
+                margin-left: auto;
+            }
+            
+            /* 徽章调整 */
+            .badge {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* 添加菜单切换按钮样式 */
+        .menu-toggle {
+            display: none;
+        }
+        
+        /* 添加遮罩层样式 */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        
+        .overlay.active {
+            display: block;
         }
     </style>
 </head>
 <body>
+    <!-- 添加菜单切换按钮和遮罩层 -->
+    <button class="menu-toggle" id="menuToggle">☰</button>
+    <div class="overlay" id="overlay"></div>
+    
     <!-- 侧边导航 -->
     <div class="sidebar">
         <div class="logo">
@@ -1546,6 +1704,43 @@
     </div>
 
     <script>
+        // 添加移动端菜单切换功能
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.getElementById('overlay');
+        
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+        });
+        
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+        
+        // 点击导航项时在移动端自动关闭菜单
+        document.querySelectorAll('.nav-item a').forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+        
+        // 窗口大小改变时处理
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+        
         // 切换内容区域
         document.querySelectorAll('.nav-item a').forEach(link => {
             link.addEventListener('click', function(e) {
